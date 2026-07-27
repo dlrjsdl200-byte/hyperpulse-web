@@ -91,10 +91,10 @@ export default function App() {
               sub="all perps"
             />
             <SummaryStat
-              label="Funding Anomalies"
-              value={String(data.anomalies.length)}
-              sub="|Z| ≥ 2 · liquid mkts"
-              accent={data.anomalies.length > 0 ? "warn" : "neutral"}
+              label="Active Signals"
+              value={String(data.signals.length)}
+              sub="funding · moves · flow"
+              accent={data.signals.length > 0 ? "warn" : "neutral"}
             />
             <SummaryStat
               label="Avg Funding"
@@ -104,22 +104,22 @@ export default function App() {
             />
           </div>
 
-          {/* ── Funding anomaly feed ── */}
+          {/* ── Market signals feed ── */}
           <section className="panel">
             <div className="panel__head">
-              <h2 className="panel__title">Funding Anomalies</h2>
+              <h2 className="panel__title">Market Signals</h2>
               <span className="panel__hint">
-                Statistically extreme funding — long/short crowding signal
+                Funding crowding, sharp 24h moves &amp; sudden trading flow
               </span>
             </div>
-            {data.anomalies.length === 0 ? (
+            {data.signals.length === 0 ? (
               <div className="empty">
-                No funding anomalies right now. Markets are balanced.
+                Markets are quiet right now — no standout signals.
               </div>
             ) : (
               <div className="anomaly-grid">
-                {data.anomalies.slice(0, 8).map((m) => (
-                  <AnomalyCard key={m.coin} m={m} />
+                {data.signals.slice(0, 9).map((s) => (
+                  <SignalCard key={`${s.coin}:${s.type}`} s={s} />
                 ))}
               </div>
             )}
@@ -209,34 +209,30 @@ function SummaryStat({ label, value, sub, accent = "neutral" }) {
   );
 }
 
-function AnomalyCard({ m }) {
-  const dir = m.fundingDir; // long | short
+const SIGNAL_TAG = { funding: "FUNDING", move: "MOVE", turnover: "FLOW" };
+
+function SignalCard({ s }) {
+  const valueClass =
+    s.accent === "long" ? "pos" : s.accent === "short" ? "neg" : "";
   return (
-    <div className={`anomaly-card anomaly-card--${dir}`}>
+    <div className={`anomaly-card anomaly-card--${s.accent}`}>
       <div className="anomaly-card__top">
-        <span className="anomaly-card__coin">{m.coin}</span>
-        <span className={`sev sev--${m.fundingSeverity}`}>
-          {m.fundingSeverity === "extreme" ? "EXTREME" : "HIGH"}
-        </span>
+        <span className="anomaly-card__coin">{s.coin}</span>
+        <span className={`tag tag--${s.type}`}>{SIGNAL_TAG[s.type]}</span>
       </div>
-      <div className="anomaly-card__dir">
-        {dir === "long" ? "Longs overpaying" : "Shorts overpaying"}
-      </div>
+      <div className="anomaly-card__dir">{s.label}</div>
       <div className="anomaly-card__stats">
         <div className="mini">
-          <span className="mini__label">Funding /hr</span>
-          <span className={`mini__value ${dir === "long" ? "pos" : "neg"}`}>
-            {fmtHourly(m.fundingHourlyPct)}
-          </span>
-          <span className="mini__apr">{fmtPct(m.annualizedFunding, 0)} APR</span>
+          <span className="mini__label">{s.primaryLabel}</span>
+          <span className={`mini__value ${valueClass}`}>{s.primary}</span>
         </div>
         <div className="mini">
-          <span className="mini__label">Z-score</span>
-          <span className="mini__value">{m.fundingZ.toFixed(1)}σ</span>
+          <span className="mini__label">{s.type === "funding" ? "Z-score" : "Context"}</span>
+          <span className="mini__value">{s.secondary}</span>
         </div>
         <div className="mini">
           <span className="mini__label">OI</span>
-          <span className="mini__value">{fmtUsd(m.notionalOi)}</span>
+          <span className="mini__value">{fmtUsd(s.oi)}</span>
         </div>
       </div>
     </div>
