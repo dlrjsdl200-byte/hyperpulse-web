@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useHyperliquid } from "./useHyperliquid";
+import WhalePanel from "./WhalePanel";
 
 // ── formatters ──
 function fmtUsd(v) {
@@ -124,6 +125,9 @@ export default function App() {
               </div>
             )}
           </section>
+
+          {/* ── Live whale tape ── */}
+          <WhalePanel />
 
           {/* ── Market heatmap table ── */}
           <section className="panel">
