@@ -221,6 +221,7 @@ function SignalCard({ s }) {
         <span className={`tag tag--${s.type}`}>{SIGNAL_TAG[s.type]}</span>
       </div>
       <div className="anomaly-card__dir">{s.label}</div>
+      {s.why && <p className="anomaly-card__why">{s.why}</p>}
       <div className="anomaly-card__stats">
         <div className="mini">
           <span className="mini__label">{s.primaryLabel}</span>

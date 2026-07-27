@@ -156,6 +156,10 @@ function transform(raw) {
       dir: m.fundingDir,
       severity: m.fundingSeverity,
       label: m.fundingDir === "long" ? "Longs overpaying" : "Shorts overpaying",
+      why:
+        m.fundingDir === "long"
+          ? "Longs paying carry to hold — crowded, watch for a flush"
+          : "Shorts paying carry to hold — crowded, squeeze fuel",
       primary: fmtHourlyPct(m.fundingHourlyPct),
       primaryLabel: "Funding /hr",
       secondary: `${m.fundingZ.toFixed(1)}σ`,
@@ -174,6 +178,9 @@ function transform(raw) {
       dir: up ? "long" : "short",
       severity: Math.abs(m.change24h) >= 15 ? "extreme" : "high",
       label: up ? "Ripping higher" : "Selling off",
+      why: up
+        ? "Ripping higher on real volume — momentum chasers piling in"
+        : "Selling off hard as sellers pile in — bounce or breakdown next",
       primary: `${up ? "+" : ""}${m.change24h.toFixed(1)}%`,
       primaryLabel: "24h move",
       secondary: `$${(m.volUsd / 1e6).toFixed(0)}M vol`,
@@ -191,6 +198,7 @@ function transform(raw) {
       dir: "neutral",
       severity: m.turnover >= 8 ? "extreme" : "high",
       label: "Attention spike",
+      why: "Traded far more than the size held — fresh attention, expect chop",
       primary: `${m.turnover.toFixed(1)}×`,
       primaryLabel: "Vol / OI",
       secondary: `$${(m.volUsd / 1e6).toFixed(0)}M vol`,
